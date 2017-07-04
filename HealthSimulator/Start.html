@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.4/angular-material.min.css" />
+	<meta charset="utf-8" />
+    <!-- AngularJS Material Dependencies -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.11/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.11/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.11/angular-aria.min.js"></script>
+    <!-- AngularJS Material Javascript now available via Google CDN; version 1.1.4 used here -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.4/angular-material.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="/Scripts/angular-chart.min.js"></script>
+    <script>
+        angular.module("MyApp", ["ngMaterial","chart.js"])
+           .run(function () { console.log('My App is ready') })
+          .config(function ($mdIconProvider) {
+              $mdIconProvider
+                .iconSet('device', 'img/icons/sets/device-icons.svg', 24);
+          })
+        .controller('AppCtrl', function ($scope) {
+
+            $scope.color = {
+                red: Math.floor(Math.random() * 255),
+                green: Math.floor(Math.random() * 255),
+                blue: Math.floor(Math.random() * 255)
+            };
+
+            $scope.rating1 = 3;
+            $scope.rating2 = 2;
+            $scope.rating3 = 4;
+            $scope.sleep = 12;
+            $scope.disabled1 = Math.floor(Math.random() * 100);
+            $scope.disabled2 = 0;
+            $scope.disabled3 = 70;
+            $scope.HighC = 60;
+            $scope.LowC = 60;
+            $scope.MediumC = 60;
+
+            $scope.invert = Math.floor(Math.random() * 100);
+
+            $scope.isDisabled = true;
+        })
+               .config(['ChartJsProvider', function (ChartJsProvider) {
+                   // Configure all charts
+                   ChartJsProvider.setOptions({
+                       chartColors: ['#803690', '#00ADF9', '#DCDCDC', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360'],
+                       responsive: false
+                   });
+                   // Configure all line charts
+                   ChartJsProvider.setOptions('line', {
+                       showLines: true
+                   });
+               }])
+       .controller("LineCtrl", function ($scope, $timeout) {
+           $scope.labels = lbl;
+           $scope.series = ['Series A', 'Series B'];
+           $scope.data = [
+             [65, 59, 80, 81, 56, 55, 40],
+             [28, 48, 40, 19, 86, 27, 90]
+           ];
+           $scope.onClick = function (points, evt) {
+               console.log(points, evt);
+           };
+       });
+    </script>
+    <script>
+        var dt = new Date();
+        var lbl = [1, 2, 3, 4, 5, 6, 7];
+        var iter = 1000;
+        
+    </script>
+</head>
+<body ng-app="MyApp" layout="row">
+
+    <style>
+        .red {
+            background-color: red;
+        }
+
+        .lightblue {
+            background-color: lightblue;
+        }
+
+        .lightgreen {
+            background-color: lightgreen;
+        }
+    </style>
+    <div class="container" layout="column" flex>
+        <md-toolbar style="max-height:100px;width:100%!important" flex="100">
+            <h1>Mayo Labs</h1>
+        </md-toolbar>
+        <div class="container2" layout="row" flex>
+            <div class="md-padding lightblue" md-is-locked-open="true" flex="100">
+                <div ng-controller="AppCtrl" ng-cloak layout="column" flex="100">
+                    <div layout="row" style="width:100%">
+                        <div layout="column">
+                            <md-content style="margin: 6px; padding:6px;max-width:600px;max-height:70%">
+                                <h2 style="text-align:center;width:100%" flex>Food</h2>
+                                <div style="max-height:100px;width:100%" layout="row" layout-align="center center">
+                                    <span style="width:20%;font-size:18px">BreakFast</span>
+                                    <span style="width:4%"></span>
+                                    <md-slider style="width:55%" min="0" max="1500" ng-model="color.red" aria-label="Breakfast" id="Breakfast-slider" class="md-accent">
+                                    </md-slider>
+                                    <span style="width:2.5%"></span>
+                                    <md-input-container style="width:17%" layout="row" layout-align="center end">
+                                        <input type="number" ng-model="color.red" aria-label="Breakfast" aria-controls="Breakfast-slider" />
+                                    </md-input-container>
+                                </div>
+                                <div style="max-height:100px;width:100%" layout="row" layout-align="center center">
+                                    <span style="width:20%;font-size:18px">Lunch</span>
+                                    <span style="width:4%"></span>
+                                    <md-slider style="width:55%" min="0" max="1500" ng-model="color.green" aria-label="Lunch" id="Lunch-slider" class="md-accent">
+                                    </md-slider>
+                                    <span style="width:2.5%"></span>
+                                    <md-input-container style="width:17%" layout="row" layout-align="center end">
+                                        <input type="number" ng-model="color.green" aria-label="Lunch" aria-controls="Lunch-slider" />
+                                    </md-input-container>
+                                </div>
+                                <div style="max-height:100px;width:100%" layout="row" layout-align="center center">
+                                    <span style="width:20%;font-size:18px">Dinner</span>
+                                    <span style="width:4%"></span>
+                                    <md-slider style="width:55%" min="0" max="1500" ng-model="color.blue" aria-label="Dinner" id="Dinner-slider" class="md-accent">
+                                    </md-slider>
+                                    <span style="width:2.5%"></span>
+                                    <md-input-container style="width:17%" layout="row" layout-align="center end">
+                                        <input type="number" ng-model="color.blue" aria-label="Dinner" aria-controls="Dinner-slider" />
+                                    </md-input-container>
+                                </div>
+                            </md-content>
+                            <md-content style="margin: 6px; padding:6px" flex>
+                                    <h2 style="text-align:center;width:100%" flex>Sleep</h2>
+                                    <div layout layout-align="left center">
+                                        <md-slider style="width:100%" flex md-discrete ng-model="sleep" step="1" min="1" max="24" aria-label="Sleep">
+                                        </md-slider>
+                                    </div>
+                                </md-content>
+                            </div>
+                        <div layout="column">
+                            <md-content layout-padding style="margin: 5px; padding:5px;max-height:600px;overflow:hidden">
+                                <span style="text-align:center;width:100%;font-size:25px" flex>Exercise</span>
+                                <div layout layout-align="left center">
+                                    <md-slider-container flex>
+                                        <md-input-container>
+                                            <input flex type="number" ng-model="HighC" aria-label="High-Cardio" aria-controls="High-Cardio">
+                                        </md-input-container>
+                                        <md-slider ng-model="HighC" min="0" max="120" aria-label="High-Cardio" id="High-Cardio" class="md-accent" md-vertical
+                                                   md-range></md-slider>
+                                        <h5>High</h5>
+                                    </md-slider-container>
+                                    <md-slider-container flex>
+                                        <md-input-container style="width:70px">
+                                            <input flex type="number" ng-model="MediumC" aria-label="Medium-Cardio" aria-controls="Medium-Cardio">
+                                        </md-input-container>
+                                        <md-slider ng-model="MediumC" min="0" max="120" aria-label="Medium-Cardio" id="Medium-Cardio" class="md-accent" md-vertical
+                                                   md-range></md-slider>
+                                        <h5>Medium</h5>
+                                    </md-slider-container>
+                                    <md-slider-container flex>
+                                        <md-input-container style="width:70px">
+                                            <input flex type="number" ng-model="LowC" aria-label="Low-Cardio" aria-controls="Low-Cardio">
+                                        </md-input-container>
+                                        <md-slider ng-model="LowC" min="0" max="120" aria-label="Low-Cardio" id="Low-Cardio" class="md-accent" md-vertical
+                                                   md-range></md-slider>
+                                        <h5>Low</h5>
+
+                                    </md-slider-container>
+                                </div>
+                            </md-content>
+                            <md-content layout-padding style="margin: 1px; padding:1px;max-height:220px;vertical-align:top" layout="column" layout-align="stretch">
+                                <span>Activity</span>
+                                <md-radio-group ng-model="radGroup" layout="column" layout-align="stretch">
+                                    <md-radio-button value="Sedentary" class="md-primary">Sedentary</md-radio-button>
+                                    <md-radio-button value="Sactive"> Somewhat Active </md-radio-button>
+                                    <md-radio-button value="Active">Active</md-radio-button>
+                                    <md-radio-button value="Vactive">Very Active</md-radio-button>
+                                </md-radio-group>
+                            </md-content>
+                        </div>
+                        </div>
+                    </div>
+            </div>
+            <div class="md-padding lightgreen" md-is-locked-open="true" id="content" flex="100">
+                <div ng-controller="LineCtrl" ng-cloak layout="column" flex="100">
+                    <md-content style="margin: 16px; padding:16px" layout="row">
+                        <canvas id="line" class="chart chart-line" chart-data="data"
+                                chart-labels="labels" chart-series="series" chart-options="options"
+                                chart-dataset-override="datasetOverride" chart-click="onClick"></canvas>
+                        <canvas id="line" class="chart chart-line" chart-data="data"
+                                chart-labels="labels" chart-series="series" chart-options="options"
+                                chart-dataset-override="datasetOverride" chart-click="onClick"></canvas>
+                    </md-content>
+                    <md-content style="margin: 16px; padding:16px">
+                        <canvas id="line" class="chart chart-line" chart-data="data"
+                                chart-labels="labels" chart-series="series" chart-options="options"
+                                chart-dataset-override="datasetOverride" chart-click="onClick"></canvas>
+                    </md-content>
+                </div>
+            </div>
+           </div>
+        </div>
+</body>
+</html>
