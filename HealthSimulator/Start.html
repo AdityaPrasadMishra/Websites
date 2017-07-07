@@ -3,7 +3,8 @@
 <head>
     <title></title>
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.4/angular-material.min.css" />
-	<meta charset="utf-8" />
+    <link href="/Styles/bootstrap.min.css" rel="stylesheet" />
+    <meta charset="utf-8" />
     <!-- AngularJS Material Dependencies -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.11/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.11/angular-animate.min.js"></script>
@@ -13,65 +14,417 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="/Scripts/angular-chart.min.js"></script>
+    <script src="/Scripts/ui-bootstrap-tpls.min.js"></script>
     <script>
-        angular.module("MyApp", ["ngMaterial","chart.js"])
+        var breakFast=500;
+        var lunch=1000;
+        var dinner=1500;
+        var globalCaloriesChange = []
+        var Exercise = []
+        var Metabolism = []
+        var Activitylevel = []
+        var globalCalorieSpent = []
+
+
+        var labelss=[]
+            var weightChange = []
+            var scaleChange = []
+            function initialscale() {
+                j = 0;
+                k = 0;
+                m = 0;
+                for (i = 0; i < 144; i++) {
+                    if (i % 20 == 0) {
+                        labelss.push(i);
+                    }
+                    else {
+                        labelss.push("");
+                    }
+                    if (j <= 5) {
+                        globalCaloriesChange.push(0);
+                    }
+                    else if (j <= 11) {
+                        globalCaloriesChange.push(breakFast);
+                    }
+                    else if (j <= 17) {
+                        globalCaloriesChange.push(lunch);
+                    }
+                    else if (j <= 23) {
+                        globalCaloriesChange.push(dinner);
+                    }
+                    else {
+                        globalCaloriesChange.push(0);
+                        j = 0;
+                    }
+                    if (j == 0) {
+                        Activitylevel.push(0)
+                    }
+                    else
+                    {
+                        Activitylevel.push(Activitylevel[i-1]+1)
+                    }
+                    if (j == 0) {
+                        Metabolism.push(0)
+                    }
+                    else {
+                        Metabolism.push(Metabolism[i-1]+95 - 12 * 5)
+                    }
+                    if (j == 5) {
+                        Exercise.push(500);
+                    }
+                    else {
+                        Exercise.push(0);
+                    }
+                    j = j + 1;
+
+                }
+                for (i = 0; i < 144; i++) {
+                    globalCalorieSpent.push(Activitylevel[i] + Metabolism[i] + Exercise[i]);
+                }
+            }
+            function scaledistribution(typex) {
+                j = 0;
+                k = 0;
+                m = 0;
+                for (i = 0; i < 144; i++) {
+                    if (j > 5 && j <= 11) {
+                        globalCaloriesChange[i] = breakFast;
+                    }
+                    if (j > 11 && j <= 17) {
+                        globalCaloriesChange[i] = lunch;
+                    }
+                    if (j > 17 && j <= 23) {
+                        globalCaloriesChange[i] = dinner;
+                    }
+                    j = j + 1;
+                    if (j >= 24)
+                    {
+                        j = 0;
+                    }
+                }
+            }
+           
+    </script>
+    <script>
+        angular.module("MyApp", ["ngMaterial", "chart.js", "ui.bootstrap"])
            .run(function () { console.log('My App is ready') })
           .config(function ($mdIconProvider) {
               $mdIconProvider
                 .iconSet('device', 'img/icons/sets/device-icons.svg', 24);
           })
-        .controller('AppCtrl', function ($scope) {
+                .controller('AppCtrl', function ($scope, $mdToast) {
 
-            $scope.color = {
-                red: Math.floor(Math.random() * 255),
-                green: Math.floor(Math.random() * 255),
-                blue: Math.floor(Math.random() * 255)
-            };
+                    $scope.color = {
+                        red: 500,
+                        green: 500,
+                        blue: 500
+                    };
+                    $scope.sleep = 12;
+                    $scope.HighC = 60;
+                    $scope.LowC = 60;
+                    $scope.MediumC = 60;
+                    $scope.radGroup = "Sedentary";
+                    $scope.$watch(
+                    function () {
+                        return $scope.color.red;
+                    },
+                    function (newValue, oldValue) {
+                        breakFast = newValue;
+                        lunch = newValue + $scope.color.green;
+                        dinner = lunch + $scope.color.blue;
+                        //console.log("1breakFast " + breakFast);
+                        //console.log("1Lunch " + lunch);
+                        //console.log("1Dinner " + dinner);
+                        scaledistribution(2);
+                        //ChangeCalories(1, newValue);
+                    });
+                    $scope.$watch(
+                    function () {
+                        return $scope.color.green;
+                    },
+                    function (newValue, oldValue) {
+                        lunch = newValue + $scope.color.red;
+                        dinner = lunch + $scope.color.blue;
+                        scaledistribution(3);
+                    });
+                    $scope.$watch(
+                    function () {
+                        return $scope.color.blue;
+                    },
+                    function (newValue, oldValue) {
+                        dinner = newValue + $scope.color.green + $scope.color.red;
+                        scaledistribution(4);
+                    });
+                    $scope.$watch(
+                    function () {
+                        return $scope.sleep;
+                    },
+                    function (newValue, oldValue) {
+                    });
+                    $scope.$watch(
+                    function () {
+                        return $scope.color.HighC;
+                    },
+                    function (newValue, oldValue) {
+                    });
+                    $scope.$watch(
+                    function () {
+                        return $scope.color.LowC;
+                    },
+                    function (newValue, oldValue) {
+                    });
+                    $scope.$watch(
+                    function () {
+                        return $scope.color.MediumC;
+                    },
+                    function (newValue, oldValue) {
+                    });
+                    $scope.$watch(
+                    function () {
+                        return $scope.color.radGroup;
+                    },
+                    function (newValue, oldValue) {
+                    });
 
-            $scope.rating1 = 3;
-            $scope.rating2 = 2;
-            $scope.rating3 = 4;
-            $scope.sleep = 12;
-            $scope.disabled1 = Math.floor(Math.random() * 100);
-            $scope.disabled2 = 0;
-            $scope.disabled3 = 70;
-            $scope.HighC = 60;
-            $scope.LowC = 60;
-            $scope.MediumC = 60;
-
-            $scope.invert = Math.floor(Math.random() * 100);
-
-            $scope.isDisabled = true;
-        })
+                })
                .config(['ChartJsProvider', function (ChartJsProvider) {
                    // Configure all charts
                    ChartJsProvider.setOptions({
                        chartColors: ['#803690', '#00ADF9', '#DCDCDC', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360'],
-                       responsive: false
+                       responsive: true
                    });
                    // Configure all line charts
                    ChartJsProvider.setOptions('line', {
-                       showLines: true
                    });
                }])
-       .controller("LineCtrl", function ($scope, $timeout) {
-           $scope.labels = lbl;
-           $scope.series = ['Series A', 'Series B'];
-           $scope.data = [
-             [65, 59, 80, 81, 56, 55, 40],
-             [28, 48, 40, 19, 86, 27, 90]
-           ];
-           $scope.onClick = function (points, evt) {
-               console.log(points, evt);
-           };
-       });
+               .controller('TicksCtrl', ['$scope', '$interval', '$mdToast', function ($scope, $interval, $mdToast) {
+            $scope.options = {
+                animation: {
+                    duration: 0
+                },
+                elements: {
+                    line: {
+                        borderWidth: 0.5
+                    },
+                    point: {
+                        radius: 0
+                    }
+                },
+                legend: {
+                    display: false
+                },
+                scales: {
+                    xAxes: [{
+                        gridLines: {
+                            color: "rgba(0, 0, 0, 0)"
+                        },
+                        display: true
+                    }],
+                    yAxes: [{
+                        gridLines: {
+                            color: "rgba(0, 0, 0, 0)"
+                        },
+                        display: true
+                    }],
+                    gridLines: {
+                        display: false
+                    }
+                },
+                tooltips: {
+                    enabled: false
+                }
+            };
+            $scope.series = ['Series A', 'Series B'];
+
+            var maximum = 144;
+            var counter = 0;
+            var temp1 = 0;
+            var temp2 = 0;
+            var count2 = 160;
+            initialscale();
+            $scope.data = [[0],[0]];
+            $scope.labels = [0];
+            for (i = 0; i < 144; i++) {
+                $scope.labels[i] = labelss[i];
+                $scope.data[0][i] = globalCaloriesChange[i];
+                $scope.data[1][i] = globalCalorieSpent[i];
+            }
+            // Update the dataset at 25FPS for a smoothly-animating chart
+            $interval(function () {
+                getLiveChartData();
+                }, 1500);
+
+
+            function getLiveChartData() {
+                temp1 = $scope.labels[0];
+                temp2 = globalCaloriesChange[counter];
+                temp3 = globalCalorieSpent[counter];
+                $scope.labels = $scope.labels.slice(1);
+                $scope.data[0] = $scope.data[0].slice(1);
+                $scope.data[1] = $scope.data[1].slice(1);
+                if ($scope.labels[0] % 20 == 1)
+                    {
+                        $scope.labels.push(count2);
+                        count2 = count2 + 20;
+                    }
+                    else
+                    {
+                        $scope.labels.push("");
+                    }
+                $scope.data[0].push(temp2);
+                $scope.data[1].push(temp3);
+                counter++;
+                if(counter>=144)
+                {
+                    counter = 0;
+                }
+            }
+        }])
+               .controller('TicksCtrl2', ['$scope', '$interval', '$mdToast', function ($scope, $interval, $mdToast) {
+                    $scope.options = {
+                        animation: {
+                            duration: 0
+                        },
+                        elements: {
+                            line: {
+                                borderWidth: 0.5
+                            },
+                            point: {
+                                radius: 0
+                            }
+                        },
+                        legend: {
+                            display: false
+                        },
+                        scales: {
+                            xAxes: [{
+                                gridLines: {
+                                    color: "rgba(0, 0, 0, 0)"
+                                },
+                                display: true
+                            }],
+                            yAxes: [{
+                                gridLines: {
+                                    color: "rgba(0, 0, 0, 0)"
+                                },
+                                display: true
+                            }],
+                            gridLines: {
+                                display: false
+                            }
+                        },
+                        tooltips: {
+                            enabled: false
+                        }
+                    };
+                    var maximum1 = 144;
+                    var counter1 = 0;
+                    var temp21 = 0;
+                    var temp31 = 0;
+                    var count21 = 160;
+                    //initialscale();
+                    $scope.data = [[0]];
+                    $scope.labels = [0];
+                    // Update the dataset at 25FPS for a smoothly-animating chart
+                    $interval(function () {
+                        getLiveChartData1();
+                    }, 1500);
+
+                    function getLiveChartData1() {
+                        temp21 = globalCaloriesChange[counter1];
+                        temp31 = globalCalorieSpent[counter1];
+                        if (counter1 > 20) {
+                            $scope.data[0] = $scope.data[0].slice(1);
+                        }
+                        if (counter1 > 144) {
+                            counter1 = 0
+                        }
+                        $scope.data[0].push(150 + (dinner - temp31) / 3500);
+                        counter1++
+
+                    }
+                }])
+               //.controller('TicksCtrl3', ['$scope', '$interval', '$mdToast', function ($scope, $interval, $mdToast) {
+               //     $scope.options = {
+               //         animation: {
+               //             duration: 0
+               //         },
+               //         elements: {
+               //             line: {
+               //                 borderWidth: 0.5
+               //             },
+               //             point: {
+               //                 radius: 0
+               //             }
+               //         },
+               //         legend: {
+               //             display: false
+               //         },
+               //         scales: {
+               //             xAxes: [{
+               //                 gridLines: {
+               //                     color: "rgba(0, 0, 0, 0)"
+               //                 },
+               //                 display: true
+               //             }],
+               //             yAxes: [{
+               //                 gridLines: {
+               //                     color: "rgba(0, 0, 0, 0)"
+               //                 },
+               //                 display: true
+               //             }],
+               //             gridLines: {
+               //                 display: false
+               //             }
+               //         },
+               //         tooltips: {
+               //             enabled: false
+               //         }
+               //     };
+               //     $scope.series = ['Series A', 'Series B'];
+
+               //     var maximum = 144;
+               //     var counter = 0;
+               //     initialscale();
+               //     $scope.data = [[0], [0]];
+               //     $scope.labels = [0];
+               //     for (i = 0; i < 144; i++) {
+               //         $scope.labels[i] = labelss[i];
+               //         $scope.data[0][i] = globalCaloriesChange[i];
+               //         $scope.data[1][i] = globalCalorieSpent[i];
+               //     }
+               //     // Update the dataset at 25FPS for a smoothly-animating chart
+               //     $interval(function () {
+               //         getLiveChartData();
+               //     }, 3000);
+
+               //     var temp1 = 0;
+               //     var temp2 = 0;
+               //     var count2 = 160;
+               //     function getLiveChartData() {
+               //         temp1 = $scope.labels[0];
+               //         temp2 = globalCaloriesChange[counter];
+               //         temp3 = globalCalorieSpent[counter];
+               //         $scope.labels = $scope.labels.slice(1);
+               //         $scope.data[0] = $scope.data[0].slice(1);
+               //         $scope.data[1] = $scope.data[1].slice(1);
+               //         if ($scope.labels[0] % 20 == 1) {
+               //             $scope.labels.push(count2);
+               //             count2 = count2 + 20;
+               //         }
+               //         else {
+               //             $scope.labels.push("");
+               //         }
+               //         $scope.data[0].push(temp2);
+               //         $scope.data[1].push(temp3);
+               //         counter++;
+               //         if (counter >= 144) {
+               //             counter = 0;
+               //         }
+               //     }
+               // }])
     </script>
-    <script>
-        var dt = new Date();
-        var lbl = [1, 2, 3, 4, 5, 6, 7];
-        var iter = 1000;
-        
-    </script>
+
 </head>
 <body ng-app="MyApp" layout="row">
 
@@ -101,8 +454,8 @@
                                 <h2 style="text-align:center;width:100%" flex>Food</h2>
                                 <div style="max-height:100px;width:100%" layout="row" layout-align="center center">
                                     <span style="width:20%;font-size:18px">BreakFast</span>
-                                    <span style="width:4%"></span>
-                                    <md-slider style="width:55%" min="0" max="1500" ng-model="color.red" aria-label="Breakfast" id="Breakfast-slider" class="md-accent">
+                                    <span style="width:9%"></span>
+                                    <md-slider style="width:50%" min="0" max="1500" ng-model="color.red" aria-label="Breakfast" id="Breakfast-slider" class="md-accent">
                                     </md-slider>
                                     <span style="width:2.5%"></span>
                                     <md-input-container style="width:17%" layout="row" layout-align="center end">
@@ -131,13 +484,13 @@
                                 </div>
                             </md-content>
                             <md-content style="margin: 6px; padding:6px" flex>
-                                    <h2 style="text-align:center;width:100%" flex>Sleep</h2>
-                                    <div layout layout-align="left center">
-                                        <md-slider style="width:100%" flex md-discrete ng-model="sleep" step="1" min="1" max="24" aria-label="Sleep">
-                                        </md-slider>
-                                    </div>
-                                </md-content>
-                            </div>
+                                <h2 style="text-align:center;width:100%" flex>Sleep</h2>
+                                <div layout layout-align="left center">
+                                    <md-slider style="width:100%" flex md-discrete ng-model="sleep" step="1" min="1" max="24" aria-label="Sleep">
+                                    </md-slider>
+                                </div>
+                            </md-content>
+                        </div>
                         <div layout="column">
                             <md-content layout-padding style="margin: 5px; padding:5px;max-height:600px;overflow:hidden">
                                 <span style="text-align:center;width:100%;font-size:25px" flex>Exercise</span>
@@ -179,27 +532,34 @@
                                 </md-radio-group>
                             </md-content>
                         </div>
-                        </div>
                     </div>
-            </div>
-            <div class="md-padding lightgreen" md-is-locked-open="true" id="content" flex="100">
-                <div ng-controller="LineCtrl" ng-cloak layout="column" flex="100">
-                    <md-content style="margin: 16px; padding:16px" layout="row">
-                        <canvas id="line" class="chart chart-line" chart-data="data"
-                                chart-labels="labels" chart-series="series" chart-options="options"
-                                chart-dataset-override="datasetOverride" chart-click="onClick"></canvas>
-                        <canvas id="line" class="chart chart-line" chart-data="data"
-                                chart-labels="labels" chart-series="series" chart-options="options"
-                                chart-dataset-override="datasetOverride" chart-click="onClick"></canvas>
-                    </md-content>
-                    <md-content style="margin: 16px; padding:16px">
-                        <canvas id="line" class="chart chart-line" chart-data="data"
-                                chart-labels="labels" chart-series="series" chart-options="options"
-                                chart-dataset-override="datasetOverride" chart-click="onClick"></canvas>
-                    </md-content>
                 </div>
             </div>
-           </div>
+            <div class="md-padding lightgreen" md-is-locked-open="true" id="content" flex="100">
+
+                    <md-content style="margin: 16px; padding:16px" layout="row">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div ng-controller="TicksCtrl" ng-cloak layout="column" flex="100">
+                                    <canvas id="ticks1" class="chart chart-line" chart-data="data"
+                                            chart-series="series" chart-options="options" chart-labels="labels"></canvas>
+                                    </div>
+                                </div>
+                        </div>
+                    </md-content>
+                    <md-content style="margin: 16px; padding:16px" layout="row">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div ng-controller="TicksCtrl2" ng-cloak layout="column" flex="100">
+                                    <canvas id="ticks2" class="chart chart-line" chart-data="data"
+                                            chart-options="options"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </md-content>
+
+            </div>
         </div>
+    </div>
 </body>
 </html>
