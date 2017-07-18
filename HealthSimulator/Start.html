@@ -40,10 +40,10 @@
             if (!initialscalecalled) {
                 j = 0;
                 k = 0;
-                m = 0;
                 for (i = 0; i < 144; i++) {
-                    if (i % 20 == 0) {
-                        labelss.push(i);
+                    if (i % 24 == 0) {
+                        labelss.push(k);
+                        k = k + 1;
                     }
                     else {
                         labelss.push("");
@@ -252,17 +252,16 @@
                    // Configure all charts
                    ChartJsProvider.setOptions({
                        chartColors: ['#803690', '#00ADF9', '#DCDCDC', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360'],
-                       responsive: true
+                       responsive: true,
+                       animation:false
                    });
                    // Configure all line charts
                    ChartJsProvider.setOptions('line', {
                    });
                }])
                .controller('TicksCtrl', ['$scope', '$interval', '$mdToast', '$window', function ($scope, $interval, $mdToast, $window) {
-            $scope.options = {
-                animation: {
-                    duration: 0
-                },
+                   $scope.options = {
+                animation: false,
                 elements: {
                     line: {
                         borderWidth: 0.5
@@ -277,17 +276,29 @@
                 scales: {
                     xAxes: [{
                         gridLines: {
-                            color: "rgba(0, 0, 0, 0)"
+                            color: "rgba(0, 0, 0, 0)",
+                            drawTicks: false
                         },
                         display: true,
                         scaleLabel: {
                             display: true,
                             labelString: 'Time in Days'
+                        },
+                        ticks: {
+                            fontSize: 12,
+                            maxRotation: 0,
+                            autoSkip: false,
+                            callback: function (value) {
+                                if (value.toString().length > 0) {
+                                    return value;
+                                } else { return null };
+                            }
                         }
                     }],
                     yAxes: [{
                         gridLines: {
-                            color: "rgba(0, 0, 0, 0)"
+                            color: "rgba(0, 0, 0, 0)",
+                            drawTicks: false
                         },
                         display: true,
                         scaleLabel: {
@@ -295,9 +306,6 @@
                             labelString: 'Calories Change'
                         }
                     }],
-                    gridLines: {
-                        display: false
-                    }
                 },
                 tooltips: {
                     enabled: false
@@ -309,7 +317,7 @@
             var counter = 0;
             var temp1 = 0;
             var temp2 = 0;
-            var count2 = 160;
+            var count2 = 6;
             initialscale();
             $scope.data = [[0],[0]];
             $scope.labels = [0];
@@ -347,10 +355,10 @@
                 $scope.labels = $scope.labels.slice(1);
                 $scope.data[0] = $scope.data[0].slice(1);
                 $scope.data[1] = $scope.data[1].slice(1);
-                if ($scope.labels[0] % 20 == 1)
+                if (counter % 24 == 0)
                     {
                         $scope.labels.push(count2);
-                        count2 = count2 + 20;
+                        count2 = count2 + 1;
                     }
                     else
                     {
@@ -365,7 +373,27 @@
                 }
             }
         }])
-               .controller('TicksCtrl2', ['$scope', '$interval', '$mdToast', function ($scope, $interval, $mdToast) {
+               .controller('TicksCtrl2', ['$scope', '$interval', '$mdToast','$window', function ($scope, $interval, $mdToast$window) {
+                   $scope.datasetOverride = [{
+                       lineTension: 0,
+        fill:false,
+                   backgroundColor: "rgba(75,192,192,0.4)",
+                   borderColor: "rgba(75,192,192,1)",
+                   borderCapStyle: 'butt',
+                   borderDash: [],
+                   borderDashOffset: 0.0,
+                   borderWidth: 1,
+                   borderJoinStyle: 'miter',
+                   pointBorderColor: "rgba(75,192,192,1)",
+                   pointBackgroundColor: "#fff",
+                   pointBorderWidth: 1,
+                   pointHoverRadius: 5,
+                   pointHoverBackgroundColor: "rgba(75,192,192,1)",
+                   pointHoverBorderColor: "rgba(220,220,220,1)",
+                   pointHoverBorderWidth: 2,
+                   pointRadius: 0,
+                   pointHitRadius: 10,
+                   }];
                     $scope.options = {
                         animation: {
                             duration: 0
@@ -384,35 +412,45 @@
                         scales: {
                             xAxes: [{
                                 gridLines: {
-                                    color: "rgba(0, 0, 0, 0)"
+                                    color: "rgba(0, 0, 0, 0)",
+                                    drawTicks: false
                                 },
                                 display: true,
                                 scaleLabel: {
                                     display: true,
-                                    labelString: 'Weight'
+                                    labelString: 'Time in Days'
+                                },
+                                ticks: {
+                                    fontSize: 12,
+                                    maxRotation: 0,
+                                    autoSkip: false,
+                                    callback: function (value) {
+                                        if (value.toString().length > 0) {
+                                            return value;
+                                        } else { return null };
+                                    }
                                 }
                             }],
                             yAxes: [{
                                 gridLines: {
-                                    color: "rgba(0, 0, 0, 0)"
+                                    color: "rgba(0, 0, 0, 0)",
+                                    drawTicks: false
                                 },
                                 display: true,
                                 scaleLabel: {
                                     display: true,
-                                    labelString: 'Time'
+                                    labelString: 'Weight in KGs'
                                 }
-                            }],
-                            gridLines: {
-                                display: false
-                            }
-                        },
+                            }]
+                        },                        
+ 
                         tooltips: {
                             enabled: false
                         }
                     };
-                    var maximum1 = 144;
-                    var counter1 = 0;
-                    var counter2 = 5;
+                    $scope.series = ['Series A'];
+                    var counter1 = 1;
+                    var counter2=0;
                     var temp21 = 0;
                     var temp31 = 0;
                     initialscale();
@@ -420,15 +458,23 @@
                     $scope.labels = [0];
                     for (i = 0; i < 6; i++) {
                         $scope.labels[i] = i;
-                        $scope.data[0][i] = WeightChange[i];
+                        if (i == 0) {
+                            $scope.data[0][i] = WeightChange[i];
+                        }
+                        else {
+                            $scope.data[0][i] = 0;
+                        }
+                        
                     }
                     // Update the dataset at 25FPS for a smoothly-animating chart
                     var td1 = $interval(function () {
                         if (startsimulation) {
                             getLiveChartData1();
                         }
-                    }, scale);
-                    $scope.$watch(scale, function (newValue, oldValue) {
+                    }, (scale*6));
+                    $scope.$watch(function () {
+                        return $window.scale;
+                    }, function (newValue, oldValue) {
                         if (startsimulation) {
                             $interval.cancel(td1);
 
@@ -436,23 +482,30 @@
 
                                 getLiveChartData1();
 
-                            }, newValue);
+                            }, (newValue*6));
                         }
                     }
                 )
 
                     function getLiveChartData1() {
-                        temp31 = WeightChange[counter1];
-                        temp21 = $scope.labels[counter1];
-                        $scope.data[0] = $scope.data[0].slice(1);
-                        $scope.labels = $scope.labels.slice(1);
-                        $scope.data[0].push(temp31);
-                        counter2 = counter2 + 1;
-                        $scope.labels.push(counter2);
-                        counter1++;
-                        if (counter1 >= 6) {
-                            counter1 = 0;
+                        if (counter2 >= 6)
+                        {
+                            counter2 = 0;
                         }
+                        temp31 = WeightChange[counter2];
+                        temp21 = $scope.labels[counter1];
+                        if (counter1 >= 6) {
+                            $scope.data[0] = $scope.data[0].slice(1);
+                            $scope.data[0].push(temp31);
+                            $scope.labels = $scope.labels.slice(1);
+                            $scope.labels.push(counter1);
+                        }
+                        else
+                        {
+                            $scope.data[0][counter2] = WeightChange[counter2];
+                        }
+                        counter2++;
+                        counter1 = counter1 + 1;                        
                     }
                }])
             .controller('btnCtrl', function ($scope) {
@@ -471,9 +524,6 @@
 
             });
                
-        //$(document).ready(function () {
-        //    initialscale();
-        //});
     </script>
 
 </head>
@@ -588,22 +638,22 @@
             </div>
             <div class="md-padding lightgreen" md-is-locked-open="true" id="content" flex="100">
 
-                    <md-content style="margin: 8px; padding:8px" layout="row">
+                    <md-content style="margin: 10px; padding:10px" layout="row">
                         <div class="panel panel-default">
                             <div class="panel-body">
-                                <div ng-controller="TicksCtrl" ng-cloak layout="column" flex="100">
+                                <div ng-controller="TicksCtrl" ng-cloak layout="column" >
                                     <canvas id="ticks1" class="chart chart-line" chart-data="data"
-                                            chart-series="series" chart-options="options" chart-labels="labels"></canvas>
+                                            chart-series="series" chart-dataset-override="datasetOverride" chart-options="options" chart-labels="labels"></canvas>
                                     </div>
                                 </div>
                         </div>
                     </md-content>
-                    <md-content style="margin: 8px; padding:8px" layout="row">
+                    <md-content style="margin: 10px; padding:10px" layout="row">
                         <div class="panel panel-default">
                             <div class="panel-body">
-                                <div ng-controller="TicksCtrl2" ng-cloak layout="column" flex="100">
-                                    <canvas id="ticks2" class="chart chart-line" chart-data="data" chart-colors="colors"
-                                            chart-options="options"></canvas>
+                                <div ng-controller="TicksCtrl2" ng-cloak layout="column" >
+                                    <canvas id="ticks2" class="chart chart-line" chart-data="data" 
+                                      chart-series="series" chart-dataset-override="datasetOverride" chart-options="options" chart-labels="labels"></canvas>
                                 </div>
                             </div>
                         </div>
