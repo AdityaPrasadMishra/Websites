@@ -16,6 +16,7 @@
     <script src="/Scripts/angular-chart.min.js"></script>
     <script src="/Scripts/ui-bootstrap-tpls.min.js"></script>
     <script>
+        //Initial Values for Proper display.
         var breakFast=500;
         var lunch=1000;
         var dinner = 1500;
@@ -31,11 +32,12 @@
         var globalCalorieSpent = []
         var WeightChange = []
         var startsimulation = false;
-        var scale = 1500;
-
+        var scale = 1000;
         var labelss=[]
-            var scaleChange = []
-            function initialscale() {
+        var scaleChange = []
+        var initialscalecalled = false;
+        function initialscale() {
+            if (!initialscalecalled) {
                 j = 0;
                 k = 0;
                 m = 0;
@@ -65,51 +67,6 @@
                     if (j == 0) {
                         Activitylevel.push(0)
                     }
-                    else
-                    {
-                        Activitylevel.push(Activitylevel[i - 1] * activitytype + 1)
-                    }
-                    if (j == 0) {
-                        Metabolism.push(0)
-                    }
-                    else {
-                        Metabolism.push(Metabolism[i-1]+95 - sleephours * 5)
-                    }
-                    if (j >= 5) {
-                        Exercise.push(High+Low+Medium);
-                    }
-                    else {
-                        Exercise.push(0);
-                    }
-                    j = j + 1;
-
-                }
-                for (i = 0; i < 144; i++) {
-                    globalCalorieSpent.push(Activitylevel[i] + Metabolism[i] + Exercise[i]);
-                }
-                for (i = 0; i < 144; i++) {
-                    if (i % 24 == 23) {
-                        WeightChange.push(150 + (globalCaloriesChange[i] - globalCalorieSpent[i])/3500)
-                    }
-                }
-            }
-            function scaledistribution(typex) {
-                j = 0;
-                k = 0;
-                m = 0;
-                for (i = 0; i < 144; i++) {
-                    if (j > 5 && j <= 11) {
-                        globalCaloriesChange[i] = breakFast;
-                    }
-                    if (j > 11 && j <= 17) {
-                        globalCaloriesChange[i] = lunch;
-                    }
-                    if (j > 17 && j <= 23) {
-                        globalCaloriesChange[i] = dinner;
-                    }
-                    if (j == 0) {
-                        Activitylevel.push(0)
-                    }
                     else {
                         Activitylevel.push(Activitylevel[i - 1] * activitytype + 1)
                     }
@@ -125,7 +82,52 @@
                     else {
                         Exercise.push(0);
                     }
-                    globalCalorieSpent[j] = (Activitylevel[j] + Metabolism[j] + Exercise[j]);
+                    j = j + 1;
+
+                }
+                for (i = 0; i < 144; i++) {
+                    globalCalorieSpent.push(Activitylevel[i] + Metabolism[i] + Exercise[i]);
+                }
+                for (i = 0; i < 144; i++) {
+                    if (i % 24 == 23) {
+                        WeightChange.push(150 + (globalCaloriesChange[i] - globalCalorieSpent[i]) / 3500)
+                    }
+                }
+                initialscalecalled = true;
+            }
+            }
+            function scaledistribution() {
+                j = 0;
+                k = 0;
+                for (i = 0; i < 144; i++) {
+                    if (j > 5 && j <= 11) {
+                        globalCaloriesChange[i] = breakFast;
+                    }
+                    if (j > 11 && j <= 17) {
+                        globalCaloriesChange[i] = lunch;
+                    }
+                    if (j > 17 && j <= 23) {
+                        globalCaloriesChange[i] = dinner;
+                    }
+                    if (j == 0) {
+                        Activitylevel[i] = 0;
+                    }
+                    else {
+                        Activitylevel[i] = (Activitylevel[i - 1] * activitytype + 1);
+                    }
+                    if (j == 0) {
+                        Metabolism[i] = 0;
+                    }
+                    else {
+                        Metabolism[i] = Metabolism[i - 1] + 95 - sleephours * 5
+                    }
+                    if (j >= 5) {
+                        Exercise[i] = High + Low + Medium;
+                    }
+                    else {
+                        Exercise[i] = 0;
+                    }
+                    globalCalorieSpent[i] = Activitylevel[i] + Metabolism[i] + Exercise[i];
                     if (j == 23) {
                         WeightChange[k] = 150 + (globalCaloriesChange[j] - globalCalorieSpent[j]) / 3500;
                         k = k + 1;
@@ -171,7 +173,7 @@
                         breakFast = newValue;
                         lunch = newValue + $scope.color.green;
                         dinner = lunch + $scope.color.blue;
-                        scaledistribution(2);
+                        scaledistribution();
                     });
                     $scope.$watch(
                     function () {
@@ -180,7 +182,7 @@
                     function (newValue, oldValue) {
                         lunch = newValue + $scope.color.red;
                         dinner = lunch + $scope.color.blue;
-                        scaledistribution(3);
+                        scaledistribution();
                     });
                     $scope.$watch(
                     function () {
@@ -188,7 +190,7 @@
                     },
                     function (newValue, oldValue) {
                         dinner = newValue + $scope.color.green + $scope.color.red;
-                        scaledistribution(4);
+                        scaledistribution();
                     });
                     $scope.$watch(
                     function () {
@@ -196,15 +198,15 @@
                     },
                     function (newValue, oldValue) {
                         sleephours = newValue;
-                        scaledistribution(6)
+                        scaledistribution()
                     });
                     $scope.$watch(
                     function () {
                         return $scope.HighC;
                     },
                     function (newValue, oldValue) {
-                        High = 300 + newValue / 60;
-                        scaledistribution(7)
+                        High = 300 * newValue / 60;
+                        scaledistribution()
 
                     });
                     $scope.$watch(
@@ -212,16 +214,16 @@
                         return $scope.LowC;
                     },
                     function (newValue, oldValue) {
-                        Low = 100 + newValue / 60;
-                        scaledistribution(8)
+                        Low = 100 * newValue / 60;
+                        scaledistribution()
                     });
                     $scope.$watch(
                     function () {
                         return $scope.MediumC;
                     },
                     function (newValue, oldValue) {
-                        Medium = 200 + newValue / 60;
-                        scaledistribution(99)
+                        Medium = 200 * newValue / 60;
+                        scaledistribution()
                     });
                     $scope.$watch(
                     function () {
@@ -234,15 +236,15 @@
                         }
                         else if (newValue == "Sactive")
                         {
-                            activitytype = 2
+                            activitytype = 1.02
                         }
                         else if (newValue == "Active") {
-                            activitytype = 3
+                            activitytype = 1.05
                         }
                         else if (newValue == "Vactive") {
-                            activitytype = 4
+                            activitytype = 1.1
                         }
-                        scaledistribution(10)
+                        scaledistribution()
                     });
 
                 })
@@ -256,7 +258,7 @@
                    ChartJsProvider.setOptions('line', {
                    });
                }])
-               .controller('TicksCtrl', ['$scope', '$interval', '$mdToast', function ($scope, $interval, $mdToast) {
+               .controller('TicksCtrl', ['$scope', '$interval', '$mdToast', '$window', function ($scope, $interval, $mdToast, $window) {
             $scope.options = {
                 animation: {
                     duration: 0
@@ -317,11 +319,25 @@
                 $scope.data[1][i] = globalCalorieSpent[i];
             }
             // Update the dataset at 25FPS for a smoothly-animating chart
-            $interval(function () {
+            var td = $interval(function () {
                 if (startsimulation) {
                     getLiveChartData();
                 }
-                }, scale);
+            }, scale);
+            $scope.$watch(function () {
+                return $window.scale;
+            }, function (newValue, oldValue)
+            {
+                if (startsimulation) {
+                    $interval.cancel(td);
+                    td = $interval(function () {
+
+                        getLiveChartData();
+
+                    }, newValue);
+                }
+            }
+        )
 
 
             function getLiveChartData() {
@@ -407,11 +423,23 @@
                         $scope.data[0][i] = WeightChange[i];
                     }
                     // Update the dataset at 25FPS for a smoothly-animating chart
-                    $interval(function () {
+                    var td1 = $interval(function () {
                         if (startsimulation) {
                             getLiveChartData1();
                         }
                     }, scale);
+                    $scope.$watch(scale, function (newValue, oldValue) {
+                        if (startsimulation) {
+                            $interval.cancel(td1);
+
+                            td1 = $interval(function () {
+
+                                getLiveChartData1();
+
+                            }, newValue);
+                        }
+                    }
+                )
 
                     function getLiveChartData1() {
                         temp31 = WeightChange[counter1];
@@ -433,8 +461,9 @@
                     return $scope.Freq;
                 },
                 function (newValue, oldValue) {
-                    scale = 1500*newValue;
-
+                    if (newValue != 0) {
+                        scale = 1000 / (newValue+1);
+                    }
                 });
                 $scope.showAlert = function (ev) {
                     startsimulation = true;
@@ -442,6 +471,9 @@
 
             });
                
+        //$(document).ready(function () {
+        //    initialscale();
+        //});
     </script>
 
 </head>
@@ -577,12 +609,12 @@
                         </div>
                     </md-content>
                 <md-content style="margin: 8px; padding:8px" layout="row" flex>
-                    <div ng-controller="btnCtrl" ng-cloak layout="column">
-                        <md-slider style="width:50%" flex md-discrete ng-model="Freq" step="1" min="1" max="5" aria-label="Freq">
+                    <div ng-controller="btnCtrl" ng-cloak layout="column" style="width:500px">
+                        <md-slider style="width:50%" flex md-discrete ng-model="Freq" step="1" min="1" max="10" aria-label="Freq">
                         </md-slider>
                     </div>
                     <div ng-controller="btnCtrl" ng-cloak layout="column" flex>
-                        <md-button class="md-raised md-primary" ng-click="showAlert($event)">Start Simulation</md-button>
+                        <md-button class="md-raised md-primary" ng-click="showAlert($event)" style="max-width:300px">Start Simulation</md-button>
                         </div>
 
 </md-content>
