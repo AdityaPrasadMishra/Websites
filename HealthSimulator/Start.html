@@ -36,7 +36,8 @@
         var labelss=[]
         var scaleChange = []
         var initialscalecalled = false;
-        var scalingfactor = 1;
+        var scalingfactor = false;
+        var isfirttimeignore = true;
         function initialscale() {
             if (!initialscalecalled) {
                 j = 0;
@@ -91,17 +92,18 @@
                 for (i = 0; i < 144; i++) {
                     globalCalorieSpent.push(Activitylevel[i] + Metabolism[i] + Exercise[i]);
                 }
-                for (i = 0; i < 144; i++) {
-                    if (i % 24 == 23) {
-                        if (i == 23) {
-                            WeightChange.push(150 + (globalCaloriesChange[i] - globalCalorieSpent[i]) / 3500)
+
+                    for (i = 0; i < 144; i++) {
+                        if (i % 24 == 23) {
+                            if (i == 23) {
+                                WeightChange.push(150 + (globalCaloriesChange[i] - globalCalorieSpent[i]) / 3500)
+                            }
+                            else {
+                                WeightChange.push(WeightChange[m - 1] + (globalCaloriesChange[i] - globalCalorieSpent[i]) / 3500)
+                            }
+                            m++;
                         }
-                        else {
-                            WeightChange.push(WeightChange[m-1] + (globalCaloriesChange[i] - globalCalorieSpent[i]) / 3500)
-                        }
-                        m++;
                     }
-                }
                 initialscalecalled = true;
             }
         }
@@ -138,17 +140,18 @@
                         Exercise[i] = 0;
                     }
                     globalCalorieSpent[i] = Activitylevel[i] + Metabolism[i] + Exercise[i];
-                    if (j == 23) {
-                        if (k == 0) {
-                            WeightChange[k] = WeightChange[5] + (globalCaloriesChange[i] - globalCalorieSpent[i]) / 3500;
-                        }
-                        else {
-                            WeightChange[k] = WeightChange[k-1] + (globalCaloriesChange[i] - globalCalorieSpent[i]) / 3500;
-                        }
-                        k = k + 1;
-                        if (k >= 6)
-                        {
-                            k = 0;
+                    if (!isfirttimeignore) {
+                        if (j == 23) {
+                            if (k == 0) {
+                                WeightChange[k] = WeightChange[5] + (globalCaloriesChange[i] - globalCalorieSpent[i]) / 3500;
+                            }
+                            else {
+                                WeightChange[k] = WeightChange[k - 1] + (globalCaloriesChange[i] - globalCalorieSpent[i]) / 3500;
+                            }
+                            k = k + 1;
+                            if (k >= 6) {
+                                k = 0;
+                            }
                         }
                     }
                     j = j + 1;
@@ -371,7 +374,8 @@
                 $scope.data[0] = $scope.data[0].slice(1);
                 $scope.data[1] = $scope.data[1].slice(1);
                 if (counter % 24 == 0)
-                    {
+                {
+                    scalingfactor = true;
                         $scope.labels.push(count2);
                         count2 = count2 + 1;
                     }
@@ -390,7 +394,7 @@
         }])
                .controller('TicksCtrl2', ['$scope', '$interval', '$mdToast','$window', function ($scope, $interval, $mdToast,$window) {
                    $scope.datasetOverride = [{
-                       lineTension: 0.5,
+                       lineTension: 0,
                    fill:false,
                    backgroundColor: "rgba(75,192,192,0.4)",
                    borderColor: "rgba(75,192,192,1)",
@@ -415,7 +419,7 @@
                         },
                         elements: {
                             line: {
-                                borderWidth: 0.5
+                                borderWidth: 1
                             },
                             point: {
                                 radius: 0
@@ -454,10 +458,7 @@
                                 display: true,
                                 scaleLabel: {
                                     display: true,
-                                    labelString: 'Weight in KGs'
-                                },
-                                ticks:{
-                                    min:0
+                                    labelString: 'Weight in LBs'
                                 }
                             }]
                         },                        
@@ -468,7 +469,8 @@
                     };
                     $scope.series = ['Series A'];
                     var counter1 = 0;
-                    var counter2=0;
+                    var counter2 = 0;
+                    var iter = 0;
                     var temp21 = 0;
                     var temp31 = 0;
                     initialscale();
@@ -477,7 +479,7 @@
                     for (i = 0; i < 6; i++) {
                         $scope.labels[i] = i;
                         if (i == 0) {
-                            $scope.data[0][i] = WeightChange[i];
+                            $scope.data[0][i] = 150;
                         }
                         else {
                             $scope.data[0][i] = 0;
@@ -489,7 +491,7 @@
                         if (startsimulation) {
                             getLiveChartData1();
                         }
-                    }, (scale*15*scalingfactor));
+                    }, scale);
                     $scope.$watch(function () {
                         return $window.scale;
                     }, function (newValue, oldValue) {
@@ -500,30 +502,47 @@
 
                                 getLiveChartData1();
 
-                            }, (newValue*15*scalingfactor));
+                            }, (newValue));
                         }
                     }
                 )
 
-                    function getLiveChartData1() {
-                        if (counter2 >= 6)
+                    function getLiveChartData1() {                       
+                        if (scalingfactor) {
+                            isfirttimeignore = false;
+                            if (counter2 >= 6) {
+                                counter2 = 0;
+                                if (counter1 >= 6) {
+                                    WeightChange[counter2] = WeightChange[5] + (globalCaloriesChange[iter] - globalCalorieSpent[iter]) / 3500;
+                                }
+                            }
+                            else
+                            {
+                                if (counter1 >= 6) {
+                                    WeightChange[counter2] = WeightChange[counter2 - 1] + (globalCaloriesChange[iter] - globalCalorieSpent[iter]) / 3500;
+                                }
+
+                            }
+                            temp31 = WeightChange[counter2];
+                            temp21 = $scope.labels[counter1];
+                            if (counter1 >= 6) {
+                                $scope.data[0] = $scope.data[0].slice(1);
+                                $scope.data[0].push(temp31);
+                                $scope.labels = $scope.labels.slice(1);
+                                $scope.labels.push(counter1);
+                            }
+                            else {
+                                $scope.data[0][counter2] = WeightChange[counter2];
+                            }
+                            counter2++;
+                            counter1 = counter1 + 1;
+                            scalingfactor = false;
+                        }
+                        iter++;
+                        if (iter >= 144)
                         {
-                            counter2 = 0;
+                            iter = 0;
                         }
-                        temp31 = WeightChange[counter2];
-                        temp21 = $scope.labels[counter1];
-                        if (counter1 >= 6) {
-                            $scope.data[0] = $scope.data[0].slice(1);
-                            $scope.data[0].push(temp31);
-                            $scope.labels = $scope.labels.slice(1);
-                            $scope.labels.push(counter1);
-                        }
-                        else
-                        {
-                            $scope.data[0][counter2] = WeightChange[counter2];
-                        }
-                        counter2++;
-                        counter1 = counter1 + 1;                        
                     }
                }])
             .controller('btnCtrl', function ($scope) {
@@ -534,7 +553,7 @@
                 function (newValue, oldValue) {
                     if (newValue != 0) {
                         scale = 1000 / (newValue + 1);
-                        scalingfactor = newValue + 1;
+                        //scalingfactor = newValue + 1;
                     }
                 });
                 $scope.showAlert = function (ev) {
